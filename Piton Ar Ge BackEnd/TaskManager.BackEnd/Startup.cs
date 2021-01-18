@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TaskManager.Repository.Repositories;
+using TaskManager.Service;
 
 namespace TaskManager.BackEnd
 {
@@ -21,7 +21,7 @@ namespace TaskManager.BackEnd
         {
             services.AddCors();
             services.AddControllers();
-            services.AddScoped<ITasksRepository, TasksRepository>();
+            services.AddScoped<ITaskManagerServices, TaskManagerServices>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

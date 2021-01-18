@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using TaskManager.Data.Models;
-using TaskManager.Repository.Repositories;
+using TaskManager.Service;
+using TaskManager.Service.DTOs;
 
 namespace TaskManager.BackEnd.Controllers
 {
@@ -9,64 +9,55 @@ namespace TaskManager.BackEnd.Controllers
     [ApiController]
     public class TasksController : ControllerBase
     {
-        private readonly ITasksRepository _repo;
-        public TasksController(ITasksRepository repo)
-        {
-            _repo = repo;
-        }
-        [HttpGet]
-        public IActionResult GetList()
-        {
-            return Ok(_repo.GetList());
-        }
-        [HttpGet]
-        public IActionResult GetUndoList()
-        {
-            return Ok(_repo.GetUndoList());
-        }
+        private readonly ITaskManagerServices _service;
+        public TasksController(ITaskManagerServices service) => _service = service;
 
-        [HttpGet("{id}")]
-        public IActionResult GetSimple(int id)
-        {
-            return Ok(_repo.GetSingle(id));
-        }
-
-        [HttpPost]
-        public IActionResult Create(Task task)
+        [HttpGet("userId")]
+        public IActionResult GetTasks(int userId)
         {
             try
             {
-                _repo.Create(task);
-                return Ok();
+                return Ok(_service.TasksServices.GetTasksList(userId));
             }
             catch (Exception ex)
             {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("id")]
+        public IActionResult GetSingle(int id)
+        {
+            try
+            {
+                return Ok(_service.TasksServices.GetSimpleTask(id));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [HttpPost]
+        public IActionResult Create(TaskOperationModel dto)
+        {
+            try
+            {
+                _service.TasksServices.Create(dto);
+                return Ok("Success");
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, Task task)
+        public IActionResult Update(int id, TaskOperationModel dto)
         {
             try
             {
-                _repo.Update(id,task);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult DoUndo(int id)
-        {
-            try
-            {
-                return Ok(_repo.DoUnDo(id));
+                _service.TasksServices.Update(id, dto);
+                return Ok("Success");
             }
             catch (Exception ex)
             {
@@ -79,12 +70,11 @@ namespace TaskManager.BackEnd.Controllers
         {
             try
             {
-                _repo.Delete(id);
-                return Ok();
+                _service.TasksServices.Delete(id);
+                return Ok("Success");
             }
             catch (Exception ex)
             {
-
                 return BadRequest(ex.Message);
             }
         }
